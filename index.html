@@ -1,0 +1,957 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AgroCapital 2026 — Painel de Cobertura</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --verde: #0a4a2e;
+  --verde-medio: #1a6b44;
+  --verde-claro: #2a8a5a;
+  --verde-bg: #061e13;
+  --ouro: #e8a020;
+  --ouro-claro: #f5c050;
+  --ouro-bg: rgba(232,160,32,0.12);
+  --branco: #f0ede6;
+  --cinza: #8a9a90;
+  --cinza-escuro: #2a3a30;
+  --card-bg: rgba(10,74,46,0.35);
+  --card-border: rgba(232,160,32,0.2);
+  --success: #4ade80;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:var(--verde-bg);color:var(--branco);font-family:'DM Sans',sans-serif;overflow-x:hidden}
+
+/* ── BACKGROUND TEXTURE ── */
+body::before{
+  content:'';position:fixed;inset:0;
+  background:
+    radial-gradient(ellipse 80% 60% at 20% 0%, rgba(26,107,68,0.35) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 50% at 90% 100%, rgba(232,160,32,0.1) 0%, transparent 55%),
+    repeating-linear-gradient(0deg, transparent, transparent 60px, rgba(255,255,255,0.015) 61px),
+    repeating-linear-gradient(90deg, transparent, transparent 60px, rgba(255,255,255,0.015) 61px);
+  pointer-events:none;z-index:0;
+}
+
+.app{position:relative;z-index:1;max-width:980px;margin:0 auto;padding:24px 16px 80px}
+
+/* ── HEADER ── */
+.header{text-align:center;margin-bottom:36px;padding-top:12px}
+.header-logo{font-family:'Bebas Neue',sans-serif;font-size:54px;letter-spacing:4px;color:var(--ouro);line-height:1;text-shadow:0 0 40px rgba(232,160,32,0.4)}
+.header-sub{font-size:13px;color:var(--cinza);letter-spacing:3px;text-transform:uppercase;margin-top:4px}
+.header-tagline{font-size:15px;color:var(--verde-claro);margin-top:8px;font-style:italic}
+
+/* ── PROGRESSO GERAL ── */
+.progresso-geral{
+  background:var(--card-bg);
+  border:1px solid var(--card-border);
+  border-radius:16px;
+  padding:20px 24px;
+  margin-bottom:28px;
+  backdrop-filter:blur(10px);
+}
+.pg-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.pg-titulo{font-size:12px;color:var(--cinza);letter-spacing:2px;text-transform:uppercase}
+.pg-pct{font-family:'Bebas Neue',sans-serif;font-size:40px;color:var(--ouro);line-height:1}
+.pg-barra-wrap{height:10px;background:rgba(255,255,255,0.08);border-radius:6px;overflow:hidden;margin-bottom:8px}
+.pg-barra{height:100%;border-radius:6px;background:linear-gradient(90deg,var(--verde-claro),var(--ouro));transition:width 0.6s cubic-bezier(.4,0,.2,1);position:relative}
+.pg-barra::after{content:'';position:absolute;right:0;top:0;bottom:0;width:6px;background:var(--ouro-claro);border-radius:3px;box-shadow:0 0 10px var(--ouro)}
+.pg-stats{display:flex;gap:24px}
+.pg-stat{font-size:12px;color:var(--cinza)}
+.pg-stat span{color:var(--branco);font-weight:500}
+
+/* ── CALENDÁRIO ── */
+.calendario{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:28px}
+.cal-card{
+  background:var(--card-bg);
+  border:1px solid var(--card-border);
+  border-radius:14px;
+  padding:16px 12px;
+  cursor:pointer;
+  transition:all 0.25s ease;
+  text-align:center;
+  position:relative;
+  overflow:hidden;
+  backdrop-filter:blur(8px);
+}
+.cal-card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(232,160,32,0.05),transparent);opacity:0;transition:opacity 0.25s}
+.cal-card:hover{border-color:rgba(232,160,32,0.5);transform:translateY(-2px)}
+.cal-card:hover::before{opacity:1}
+.cal-card.ativo{border-color:var(--ouro);background:rgba(232,160,32,0.15);box-shadow:0 0 24px rgba(232,160,32,0.2)}
+.cal-card.concluido{border-color:var(--success);background:rgba(74,222,128,0.08)}
+.cal-num{font-family:'Bebas Neue',sans-serif;font-size:36px;color:var(--ouro);line-height:1}
+.cal-mes{font-size:10px;color:var(--cinza);text-transform:uppercase;letter-spacing:2px;margin-bottom:6px}
+.cal-dia{font-size:11px;color:var(--verde-claro);font-weight:500;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
+.cal-tema{font-size:10px;color:var(--cinza);line-height:1.4;margin-bottom:10px}
+.cal-minibarra{height:4px;background:rgba(255,255,255,0.08);border-radius:2px;overflow:hidden}
+.cal-minifill{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--verde-claro),var(--ouro));transition:width 0.5s ease}
+.cal-pct-txt{font-size:10px;color:var(--cinza);margin-top:4px}
+.cal-check{position:absolute;top:8px;right:8px;width:18px;height:18px;border-radius:50%;background:var(--success);display:none;align-items:center;justify-content:center;font-size:10px}
+.cal-card.concluido .cal-check{display:flex}
+
+/* ── CONTEÚDO DO DIA ── */
+.dia-conteudo{display:none}
+.dia-conteudo.ativo{display:block;animation:fadeUp 0.3s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+.dia-header{
+  background:linear-gradient(135deg,var(--verde),var(--verde-medio));
+  border:1px solid var(--card-border);
+  border-radius:16px;
+  padding:24px 28px;
+  margin-bottom:20px;
+  position:relative;
+  overflow:hidden;
+}
+.dia-header::after{
+  content:'';position:absolute;right:-20px;top:-20px;width:120px;height:120px;
+  background:radial-gradient(circle,rgba(232,160,32,0.15),transparent 70%);
+}
+.dia-header-num{font-family:'Bebas Neue',sans-serif;font-size:13px;color:var(--ouro);letter-spacing:3px}
+.dia-header-titulo{font-family:'Bebas Neue',sans-serif;font-size:32px;color:var(--branco);letter-spacing:2px;margin:4px 0}
+.dia-header-tema{font-size:13px;color:rgba(240,237,230,0.7);font-style:italic}
+.dia-progresso-local{margin-top:14px;display:flex;align-items:center;gap:12px}
+.dia-prog-barra{flex:1;height:8px;background:rgba(255,255,255,0.1);border-radius:4px;overflow:hidden}
+.dia-prog-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--ouro-claro),var(--ouro));transition:width 0.5s ease}
+.dia-prog-pct{font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--ouro);min-width:48px;text-align:right}
+
+/* ── ALERTA ── */
+.alerta{
+  background:rgba(232,160,32,0.12);
+  border:1px solid rgba(232,160,32,0.4);
+  border-left:4px solid var(--ouro);
+  border-radius:10px;
+  padding:14px 18px;
+  margin-bottom:18px;
+  font-size:13px;
+  color:rgba(240,237,230,0.9);
+  line-height:1.6;
+}
+.alerta strong{color:var(--ouro)}
+
+/* ── PROGRAMAÇÃO ── */
+.secao-titulo{
+  font-size:11px;color:var(--ouro);letter-spacing:2.5px;text-transform:uppercase;
+  margin:20px 0 10px;display:flex;align-items:center;gap:8px;
+}
+.secao-titulo::after{content:'';flex:1;height:1px;background:rgba(232,160,32,0.2)}
+.prog-tabela{width:100%;border-collapse:collapse;margin-bottom:4px}
+.prog-tabela tr{border-bottom:1px solid rgba(255,255,255,0.05)}
+.prog-tabela td{padding:8px 10px;font-size:12px;vertical-align:top}
+.prog-hora{color:var(--ouro-claro);font-weight:600;white-space:nowrap;width:100px}
+.prog-tema{color:var(--branco)}
+.prog-local{color:var(--cinza);font-style:italic;text-align:right;white-space:nowrap}
+.badge-mulher{display:inline-block;font-size:9px;padding:1px 6px;border-radius:3px;background:rgba(255,100,180,0.2);color:#ffb3d9;margin-left:6px}
+.badge-aud{display:inline-block;font-size:9px;padding:1px 6px;border-radius:3px;background:rgba(100,150,255,0.2);color:#b3c8ff;margin-left:6px}
+.badge-palco{display:inline-block;font-size:9px;padding:1px 6px;border-radius:3px;background:rgba(232,160,32,0.2);color:var(--ouro-claro);margin-left:6px}
+
+/* ── REELS ── */
+.reel-card{
+  background:var(--card-bg);
+  border:1px solid var(--card-border);
+  border-radius:14px;
+  margin-bottom:14px;
+  overflow:hidden;
+  backdrop-filter:blur(8px);
+}
+.reel-header{
+  background:linear-gradient(90deg,rgba(10,74,46,0.8),rgba(26,107,68,0.4));
+  padding:14px 20px;
+  display:flex;align-items:center;gap:12px;cursor:pointer;
+  border-bottom:1px solid rgba(232,160,32,0.15);
+  user-select:none;
+}
+.reel-num-badge{
+  width:32px;height:32px;border-radius:50%;
+  background:var(--ouro);color:var(--verde-bg);
+  font-family:'Bebas Neue',sans-serif;font-size:18px;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+.reel-info{flex:1}
+.reel-titulo{font-size:14px;font-weight:600;color:var(--branco);line-height:1.3}
+.reel-dur{font-size:11px;color:var(--cinza);margin-top:2px}
+.reel-toggle{font-size:18px;color:var(--cinza);transition:transform 0.25s}
+.reel-toggle.aberto{transform:rotate(180deg)}
+.reel-body{padding:0 20px;max-height:0;overflow:hidden;transition:max-height 0.4s ease,padding 0.3s}
+.reel-body.aberto{max-height:9999px;padding:16px 20px}
+
+.contexto-box{
+  background:rgba(26,107,68,0.2);
+  border-left:3px solid var(--verde-claro);
+  border-radius:0 8px 8px 0;
+  padding:12px 16px;
+  font-size:13px;color:rgba(240,237,230,0.85);
+  line-height:1.7;margin-bottom:16px;
+}
+
+/* ── TAKES ── */
+.take-bloco{
+  border:1px solid rgba(255,255,255,0.07);
+  border-radius:10px;
+  margin-bottom:10px;
+  overflow:hidden;
+  transition:border-color 0.2s;
+}
+.take-bloco.concluido{border-color:rgba(74,222,128,0.3)}
+.take-header{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 14px;
+  background:rgba(255,255,255,0.03);
+  cursor:pointer;user-select:none;
+}
+.take-cb{
+  width:20px;height:20px;border-radius:5px;
+  border:2px solid rgba(255,255,255,0.2);
+  flex-shrink:0;display:flex;align-items:center;justify-content:center;
+  transition:all 0.2s;color:transparent;font-size:11px;font-weight:700;
+}
+.take-cb.ok{background:var(--success);border-color:var(--success);color:var(--verde-bg)}
+.take-num{font-family:'Bebas Neue',sans-serif;font-size:14px;color:var(--ouro);min-width:28px}
+.take-titulo-txt{font-size:13px;font-weight:500;color:var(--branco);flex:1;line-height:1.3}
+.take-titulo-txt.ok{text-decoration:line-through;color:var(--cinza)}
+.take-expand{font-size:14px;color:var(--cinza);transition:transform 0.2s}
+.take-expand.aberto{transform:rotate(180deg)}
+.take-detalhe{padding:0 14px;max-height:0;overflow:hidden;transition:max-height 0.35s ease,padding 0.25s}
+.take-detalhe.aberto{max-height:999px;padding:2px 14px 14px}
+.take-campo{margin-bottom:10px}
+.take-label{font-size:9px;color:var(--ouro);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px}
+.take-valor{font-size:12px;color:rgba(240,237,230,0.85);line-height:1.65;background:rgba(0,0,0,0.15);border-radius:6px;padding:8px 12px}
+.take-valor.destaque{background:rgba(232,160,32,0.1);border:1px solid rgba(232,160,32,0.2);color:var(--ouro-claro)}
+
+/* ── CHECKLIST TAKES/FOTOS ── */
+.checklist-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:6px}
+@media(max-width:600px){.checklist-grid{grid-template-columns:1fr}}
+.chk-item{
+  display:flex;align-items:flex-start;gap:8px;
+  padding:9px 12px;
+  background:rgba(255,255,255,0.03);
+  border:1px solid rgba(255,255,255,0.07);
+  border-radius:8px;cursor:pointer;
+  transition:all 0.2s;
+}
+.chk-item:hover{background:rgba(255,255,255,0.06);border-color:rgba(232,160,32,0.2)}
+.chk-item.ok{background:rgba(74,222,128,0.06);border-color:rgba(74,222,128,0.25)}
+.chk-box{
+  width:16px;height:16px;border-radius:4px;
+  border:1.5px solid rgba(255,255,255,0.2);
+  flex-shrink:0;margin-top:1px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:9px;font-weight:700;color:transparent;
+  transition:all 0.2s;
+}
+.chk-box.ok{background:var(--success);border-color:var(--success);color:var(--verde-bg)}
+.chk-txt{font-size:11px;color:rgba(240,237,230,0.8);line-height:1.4;flex:1}
+.chk-txt.ok{text-decoration:line-through;color:var(--cinza)}
+.chk-badge{font-size:9px;padding:1px 5px;border-radius:3px;white-space:nowrap;flex-shrink:0;margin-top:1px}
+.chk-r{background:rgba(220,60,60,0.2);color:#ff9999}
+.chk-b{background:rgba(100,150,255,0.2);color:#b3c8ff}
+.chk-g{background:rgba(255,255,255,0.08);color:var(--cinza)}
+.chk-f{background:rgba(232,160,32,0.15);color:var(--ouro-claro)}
+
+/* ── MODAL DE PARABÉNS ── */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,0.75);
+  display:none;align-items:center;justify-content:center;
+  z-index:1000;backdrop-filter:blur(4px);
+}
+.modal-overlay.ativo{display:flex;animation:fadeIn 0.3s ease}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.modal-box{
+  background:linear-gradient(135deg,var(--verde),var(--cinza-escuro));
+  border:1px solid var(--ouro);
+  border-radius:20px;
+  padding:40px 48px;
+  text-align:center;
+  max-width:420px;width:90%;
+  box-shadow:0 0 60px rgba(232,160,32,0.3);
+  animation:popIn 0.4s cubic-bezier(.175,.885,.32,1.275);
+}
+@keyframes popIn{from{transform:scale(0.7);opacity:0}to{transform:scale(1);opacity:1}}
+.modal-emoji{font-size:64px;margin-bottom:16px;display:block}
+.modal-titulo{font-family:'Bebas Neue',sans-serif;font-size:36px;color:var(--ouro);letter-spacing:2px;margin-bottom:8px}
+.modal-msg{font-size:15px;color:rgba(240,237,230,0.85);line-height:1.6;margin-bottom:24px}
+.modal-btn{
+  background:var(--ouro);color:var(--verde-bg);
+  border:none;padding:12px 32px;border-radius:8px;
+  font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;
+  cursor:pointer;transition:all 0.2s;
+}
+.modal-btn:hover{background:var(--ouro-claro);transform:scale(1.03)}
+
+/* ── CONFETTI ── */
+.confetti-piece{
+  position:fixed;width:8px;height:8px;opacity:0;
+  border-radius:2px;pointer-events:none;z-index:999;
+  animation:confettiFall 2.5s ease forwards;
+}
+@keyframes confettiFall{
+  0%{opacity:1;transform:translateY(-10px) rotate(0deg)}
+  100%{opacity:0;transform:translateY(100vh) rotate(720deg)}
+}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(232,160,32,0.3);border-radius:3px}
+
+/* ── RESPONSIVO ── */
+@media(max-width:640px){
+  .calendario{grid-template-columns:repeat(3,1fr);grid-template-rows:auto auto}
+  .header-logo{font-size:40px}
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-logo">AgroCapital 2026</div>
+    <div class="header-sub">Painel de Cobertura · Goiânia · GO</div>
+    <div class="header-tagline">Seu guia de campo para os 5 dias de evento</div>
+  </div>
+
+  <!-- PROGRESSO GERAL -->
+  <div class="progresso-geral">
+    <div class="pg-header">
+      <div class="pg-titulo">Missão geral</div>
+      <div class="pg-pct" id="pct-geral">0%</div>
+    </div>
+    <div class="pg-barra-wrap"><div class="pg-barra" id="barra-geral" style="width:0%"></div></div>
+    <div class="pg-stats">
+      <div class="pg-stat">Takes: <span id="stat-takes">0/0</span></div>
+      <div class="pg-stat">Fotos: <span id="stat-fotos">0/0</span></div>
+      <div class="pg-stat">Roteiro: <span id="stat-roteiro">0/0</span></div>
+      <div class="pg-stat">Dias concluídos: <span id="stat-dias">0/5</span></div>
+    </div>
+  </div>
+
+  <!-- CALENDÁRIO -->
+  <div class="calendario" id="calendario"></div>
+
+  <!-- CONTEÚDO DO DIA -->
+  <div id="conteudo-dias"></div>
+
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal">
+  <div class="modal-box">
+    <span class="modal-emoji" id="modal-emoji">🏆</span>
+    <div class="modal-titulo" id="modal-titulo">MISSÃO CONCLUÍDA!</div>
+    <div class="modal-msg" id="modal-msg"></div>
+    <button class="modal-btn" onclick="fecharModal()">Continuar →</button>
+  </div>
+</div>
+
+<script>
+const DIAS = [
+{
+  num:1, data:'01', mes:'JUN', dia:'Segunda', tema:'Abertura do Evento',
+  alerta:null,
+  programacao:[
+    {h:'14h30',t:'Abertura Oficial do Evento',l:'Palco Principal',tipo:'palco'},
+    {h:'15h30',t:'Representatividade Feminina no Serviço Público — Gracinha Caiado, Talles Barreto, Iara Vilela',l:'Espaço Mulher',tipo:'mulher'},
+    {h:'16h',t:'A atuação feminina na defesa agropecuária — Denise Toledo (Agrodefesa)',l:'Espaço Mulher',tipo:'mulher'},
+    {h:'16h30',t:'Gestão e marketing em vendas — Alessandro de Brito Cunha',l:'Auditório',tipo:'aud'},
+    {h:'17h',t:'O futuro do plantio — José Roberto Assy',l:'Auditório',tipo:'aud'},
+  ],
+  reels:[
+    {
+      num:1, titulo:'Abertura: o agro chegou em Goiânia', dur:'45–55s',
+      contexto:'Este é o reel de abertura da cobertura. O objetivo é apresentar a feira para quem nunca foi, criar desejo e curiosidade, e estabelecer o tamanho do evento. Energia alta, cortes rápidos, mas com sentido. Não é só "olha o que tem aqui" — é "você precisa entender o que esse evento representa pro agro brasileiro."',
+      takes:[
+        {titulo:'ABERTURA VISUAL — Chegada ao evento',tempo:'0–4s',instrucao:'Chegue às 13h30, antes do fluxo de público. Plano geral da estrutura: fachada, totens com a logo, tratores visíveis à distância. Câmera em movimento lento da esquerda para a direita. Sem fala — som ambiente. Depois faça 3 closes rápidos: 1) logo da AgroCapital no totem, 2) roda de trator grande de baixo pra cima, 3) pessoas passando com crachá.',pergunta:null,fala:null,edicao:null,direcao:'Ângulo do chão pra cima no trator dá escala e impacto.'},
+        {titulo:'ABORDAGEM 1 — Visitante chegando',tempo:'4–20s',instrucao:'Na entrada, pare alguém com cara de produtor rural (chapéu, bota, crachá). Abordagem rápida: "Posso te fazer uma pergunta rápida pro vídeo?" Câmera já ligada. Quer uma resposta de 10–15s. Enquadramento: rosto + evento ao fundo.',pergunta:'Você veio de onde pra estar aqui hoje? O que te trouxe à Agrocapital?',fala:'"Vim de Jataí, sou produtor de soja, e quero ver as novidades em máquinas." — Se vier de outro estado, esse take mostra o alcance do evento.',edicao:null,direcao:'Se a pessoa vier de outro estado, guarde esse detalhe para a legenda.'},
+        {titulo:'ABORDAGEM 2 — Reação à abertura oficial',tempo:'20–35s',instrucao:'Na abertura oficial (14h30, Palco Principal), grave as autoridades e a plateia. Depois aborde alguém que estava assistindo. Pode ser qualquer perfil.',pergunta:'Você está aqui desde a abertura. O que você viu até agora que te chamou mais atenção?',fala:'"Nunca vim numa feira dessas, não esperava esse tamanho." ou "Vim pra conhecer as soluções de crédito que têm aqui."',edicao:null,direcao:'Se a pessoa parecer animada, deixa ela falar um pouco mais — você usa só 10s na edição.'},
+        {titulo:'SEQUÊNCIA DE IMAGENS — Cortes rápidos',tempo:'35–45s',instrucao:'Grave 6–8 imagens de 3–5s cada, sem fala, para corte rápido com trilha: 1) Corredor principal cheio, 2) Stand de marca grande (John Deere, Valtra, Toyota), 3) Trator com close no pneu, 4) Banner AgroCapital 2026, 5) Pessoa olhando equipamento com interesse, 6) Vista geral de ponto alto.',pergunta:null,fala:null,edicao:null,direcao:'Tente pegar uma vista de ponto elevado — dá escala ao evento.'},
+        {titulo:'ENCERRAMENTO',tempo:'45–52s',instrucao:'Imagem mais bonita do dia — prefira a vista geral com público e estrutura ao mesmo tempo.',pergunta:null,fala:null,edicao:'"Agrocapital 2026. Dia 1. Só o começo."',direcao:'Trilha diminui no texto final.'},
+      ]
+    },
+    {
+      num:2, titulo:'Espaço Mulher no dia 1 — representatividade que o agro precisa ver', dur:'50–60s',
+      contexto:'Já no primeiro dia, o evento coloca o Espaço Mulher na programação com nome pesado: Gracinha Caiado, Denise Toledo da Agrodefesa. O objetivo é mostrar que a Agrocapital não é só trator e soja — é também sobre as mulheres que estão transformando o campo. Atinge o público do agro e o público geral. Tom inspirador com profundidade real.',
+      takes:[
+        {titulo:'ABERTURA — Ambiente do Espaço Mulher',tempo:'0–4s',instrucao:'Grave o Espaço Mulher antes da palestra — decoração, sinalização, cadeiras se enchendo. Plano geral depois close na placa com o nome do espaço.',pergunta:null,fala:null,edicao:null,direcao:'Se o espaço tiver decoração diferenciada, capture os detalhes — contam a história antes de qualquer fala.'},
+        {titulo:'ABORDAGEM 1 — Mulher antes da palestra',tempo:'10–25s',instrucao:'Antes ou no intervalo da palestra, aborde uma mulher no Espaço Mulher. Tom aberto e acolhedor. Enquadramento: rosto no centro, espaço ao fundo.',pergunta:'Por que você veio especificamente ao Espaço Mulher? O que esse espaço representa pra você?',fala:'"Vim porque a gente precisa ver que tem lugar pra mulher no agro também." ou "Sou gerente de fazenda e queria ouvir a Denise Toledo."',edicao:null,direcao:'Se a pessoa emocionar, não corte — esse tipo de take retém o espectador.'},
+        {titulo:'TRECHO DO AMBIENTE — Palestra em andamento',tempo:'25–40s',instrucao:'Posicione-se na lateral ou no fundo. Grave a plateia prestando atenção, palestrante no microfone, reação da plateia (alguém anotando, concordando, aplaudindo).',pergunta:null,fala:null,edicao:null,direcao:'Não aponte a câmera direto para o rosto das palestrantes sem permissão. Plano médio ou geral.'},
+        {titulo:'ABORDAGEM 2 — Mulher saindo da palestra',tempo:'40–52s',instrucao:'Na saída, aborde alguém que estava dentro. Pergunta sobre o aprendizado e emoção.',pergunta:'O que você leva dessa conversa? Mudou alguma coisa na forma que você vê o papel da mulher no agro?',fala:'"Fico feliz que esse tipo de conversa esteja acontecendo numa feira de agronegócio. Antes não tinha isso."',edicao:null,direcao:'Deixa a pessoa terminar o raciocínio antes de agradecer.'},
+        {titulo:'ENCERRAMENTO',tempo:'52–58s',instrucao:'Imagem da saída do Espaço Mulher com movimento de público.',pergunta:null,fala:null,edicao:'"O agro tem voz feminina. Agrocapital 2026."',direcao:'Trilha mais suave — o contraste dá peso emocional ao encerramento.'},
+      ]
+    }
+  ],
+  takes:[
+    {t:'Fachada / entrada do evento — plano geral',o:'r'},{t:'Público chegando — fluxo de 10s contínuos',o:'r'},
+    {t:'Banner / logo AgroCapital em totem ou painel',o:'r'},{t:'Palco principal com autoridades na abertura oficial',o:'r'},
+    {t:'Espaço Mulher — plano geral do ambiente',o:'r'},{t:'Palestrante no Espaço Mulher (take lateral)',o:'r'},
+    {t:'Visitante na entrada dando expectativa (15s)',o:'r'},{t:'Trator grande — ângulo de baixo pra cima',o:'r'},
+    {t:'Mulher saindo da palestra com opinião (15s)',o:'b'},{t:'Close em detalhe de máquina (painel, pneu)',o:'b'},
+    {t:'Vista geral do complexo de ponto elevado',o:'b'},{t:'Logo de marcas nos estandes (John Deere, Valtra)',o:'g'},
+    {t:'Cenas de pessoas em conversa e handshake',o:'g'},{t:'Qualquer momento espontâneo marcante do dia',o:'g'},
+  ],
+  fotos:[
+    {t:'Fachada frontal do evento — foto oficial de abertura',o:'f'},{t:'Banner AgroCapital 2026 — close frontal limpo',o:'f'},
+    {t:'Vista panorâmica do complexo (10–15 fotos)',o:'f'},{t:'Espaço Mulher — ambiente e plateia',o:'f'},
+    {t:'Gracinha Caiado ou Denise Toledo no painel (lateral)',o:'f'},{t:'Plateia da abertura oficial no Palco Principal',o:'f'},
+    {t:'Público chegando — expressões de animação',o:'f'},{t:'Tratores e máquinas em exposição',o:'f'},
+    {t:'Detalhe de equipamento — close artístico',o:'f'},{t:'Visitantes interagindo com expositores',o:'f'},
+    {t:'Corredor principal cheio de movimento',o:'f'},{t:'Identidade visual do evento em vários pontos',o:'f'},
+    {t:'Networking e interações espontâneas',o:'f'},{t:'Palco principal iluminado',o:'f'},
+    {t:'Closes em crachás, mãos, detalhes humanos',o:'f'},
+  ]
+},
+{
+  num:2, data:'02', mes:'JUN', dia:'Terça', tema:'Comunicação & Inovação',
+  alerta:'ESPAÇO MULHER: Mesa redonda "Comunicar no agro" às 9h com Vanessa R., Monyque L. e outras — seguida de Marcas Fortes às 10h. São comunicadoras com audiência digital relevante. Uma fala de qualquer uma delas é o melhor take do dia.',
+  programacao:[
+    {h:'8h30–11h',t:'Eixo 1 AGCZ: Goiás Genética 2026',l:'Auditório',tipo:'aud'},
+    {h:'9h–10h',t:'Mesa redonda: Comunicar no agro (Josie M., Vanessa R., Monyque L., Lara G., Nayara M., Bruna D., Simone D.)',l:'Espaço Mulher',tipo:'mulher'},
+    {h:'10h–11h',t:'Marcas Fortes e Comercialização — Jordana Moraes e Gabriela Peixoto',l:'Espaço Mulher',tipo:'mulher'},
+    {h:'14h–15h',t:'Abertura Inova Agro — 1º Congresso · Fernando Barnabé',l:'Auditório',tipo:'aud'},
+    {h:'15h–17h',t:'Startups e inovação — Marco Elísio, Zé Garrote, Rafael Brasil',l:'Auditório',tipo:'aud'},
+    {h:'17h–18h',t:'Casos de Sucesso — Eike Batista',l:'Auditório',tipo:'aud'},
+  ],
+  reels:[
+    {
+      num:1, titulo:'Mulheres que comunicam o agro — a mesa que a internet precisa ver', dur:'50–60s',
+      contexto:'A mesa tem comunicadoras com audiências digitais relevantes. Monyque L. e Vanessa R. são influenciadoras confirmadas do evento. Se conseguir uma fala de qualquer uma, é o melhor take do dia. O público vai se identificar com o tema — quem está no agro reconhece o desafio de comunicar um setor visto como fechado; quem está fora se surpreende com o nível da conversa.',
+      takes:[
+        {titulo:'ABERTURA — Mesa redonda em andamento',tempo:'0–4s',instrucao:'Chegue antes das 9h. A mesa tem várias mulheres no painel — visualmente impactante. Grave de frente ou diagonal: participantes, microfones, plateia ao fundo. Câmera começa no plano geral e aproxima devagar.',pergunta:null,fala:null,edicao:null,direcao:'Seis ou sete mulheres numa mesa de debate num evento de agronegócio é uma cena que conta história sozinha.'},
+        {titulo:'ABORDAGEM 1 — Participante da mesa',tempo:'10–28s',instrucao:'Tente combinar antes da palestra com uma das participantes — ou aborde alguém da plateia logo depois. O ideal é Monyque L. ou Vanessa R., mas qualquer participante serve.',pergunta:'O que mudou na comunicação do agro nos últimos anos? A mulher ficou mais visível nisso?',fala:'"Antes, quem falava de agro era a TV aberta. Hoje tem criadora de conteúdo no TikTok com 2 milhões de seguidores mostrando a rotina do campo. Isso mudou tudo."',edicao:null,direcao:'Essa pergunta tende a soltar respostas longas. Guarde tudo — na edição você escolhe os 15s mais fortes.'},
+        {titulo:'ABORDAGEM 2 — Mulher do agro na plateia',tempo:'28–42s',instrucao:'Outra mulher — expositora, produtora, estudante — que estava assistindo ou circulando no Espaço Mulher.',pergunta:'Você usa as redes pra falar sobre o que você faz no agro? Como isso mudou o seu negócio ou carreira?',fala:'"Comecei a postar sobre a fazenda da minha família e em 6 meses tinha cliente novo chegando de outro estado." ou "Ainda tenho medo de aparecer, mas ver isso aqui me deu vontade de começar."',edicao:null,direcao:'Se a resposta for mais tímida, não corte — a vulnerabilidade conecta com o público.'},
+        {titulo:'ENCERRAMENTO',tempo:'42–50s',instrucao:'Última imagem: Espaço Mulher ainda cheio ou painel sendo encerrado com aplausos.',pergunta:null,fala:null,edicao:'"A voz do agro tem muito sotaque feminino. Agrocapital 2026."',direcao:''},
+      ]
+    },
+    {
+      num:2, titulo:'Inova Agro — quando a startup encontra o campo', dur:'50–60s',
+      contexto:'O 1º Congresso Inova Agro abre à tarde com Fernando Barnabé e segue com startups, inovação, e Eike Batista. Esse reel precisa traduzir inovação para quem não é do setor — mostrar que o campo não é mais só trator, é também software, sensor e startup. Tom de descoberta: "você sabia que o agro tá assim?"',
+      takes:[
+        {titulo:'ABERTURA — 1º Congresso Inova Agro',tempo:'0–4s',instrucao:'Grave a abertura do Congresso às 14h com Fernando Barnabé. Plano do auditório cheio + banner. Câmera do fundo ou lateral.',pergunta:null,fala:null,edicao:null,direcao:'O banner "Inova Agro — 1º Congresso" na tela já passa credibilidade.'},
+        {titulo:'ABORDAGEM 1 — Participante do congresso',tempo:'4–20s',instrucao:'No intervalo entre 15h e 17h, aborde alguém saindo do painel de startups — jovem, técnico, estudante ou empresário.',pergunta:'Qual tecnologia você acha que vai mudar mais o campo nos próximos anos? Teve algo aqui hoje que te surpreendeu?',fala:'"Não imaginava o nível de inovação que existe aqui. Tinha startup daqui de Goiás que nunca ouvi falar e a solução é incrível."',edicao:null,direcao:'Jovens tendem a responder com mais entusiasmo. Um produtor mais velho falando sobre inovação pode ser ainda mais poderoso.'},
+        {titulo:'ABORDAGEM 2 — Representante de startup',tempo:'20–36s',instrucao:'Procure um stand de startup ou solução tecnológica. A pergunta é objetiva — quer uma resposta de 10–12s que qualquer pessoa entenda.',pergunta:'Me fala em uma frase: qual problema a sua solução resolve pro produtor rural?',fala:'"A gente reduz o desperdício de defensivo em até 40% usando imagem de satélite pra mapear onde tem praga de verdade."',edicao:null,direcao:'Se a resposta for muito técnica: "Como você explicaria isso pra quem nunca ouviu falar?"'},
+        {titulo:'IMAGENS — Eike Batista e clima do auditório',tempo:'36–50s',instrucao:'Às 17h, Eike Batista no auditório. Grave de longe ou da lateral: plateia, telão, clima geral. Não é necessário gravar a fala.',pergunta:null,fala:null,edicao:null,direcao:'Plano geral do auditório cheio com telão ao fundo já passa o peso do momento.'},
+        {titulo:'ENCERRAMENTO',tempo:'50–58s',instrucao:'Networking no corredor ou saída do auditório.',pergunta:null,fala:null,edicao:'"O campo do futuro está sendo construído agora. Inova Agro — Agrocapital 2026."',direcao:''},
+      ]
+    }
+  ],
+  takes:[
+    {t:'Mesa redonda Espaço Mulher — plano geral (10s)',o:'r'},{t:'Participante da mesa falando (take lateral, 15s)',o:'r'},
+    {t:'Mulher da plateia sobre comunicação no agro (15s)',o:'r'},{t:'Abertura do Inova Agro — auditório + banner',o:'r'},
+    {t:'Participante opinando sobre inovação (15s)',o:'r'},{t:'Representante de startup explicando solução (15s)',o:'r'},
+    {t:'Corredor da feira no horário livre',o:'b'},{t:'Jordana Moraes ou Gabriela Peixoto no Espaço Mulher',o:'b'},
+    {t:'Eike Batista na palestra — take ambiente',o:'b'},{t:'Networking científico às 18h',o:'g'},
+  ],
+  fotos:[
+    {t:'Mesa redonda Espaço Mulher — visão frontal',o:'f'},{t:'Comunicadoras no painel — plano médio',o:'f'},
+    {t:'Plateia do Espaço Mulher cheia',o:'f'},{t:'Auditório principal — abertura Inova Agro',o:'f'},
+    {t:'Banner Inova Agro 1º Congresso',o:'f'},{t:'Stands de tecnologia e inovação',o:'f'},
+    {t:'Jovens empreendedores no congresso',o:'f'},{t:'Eike Batista no auditório (plano geral)',o:'f'},
+    {t:'Networking científico — clima informal',o:'f'},{t:'Detalhes de stands de startups',o:'f'},
+    {t:'Interação entre comunicadoras e plateia',o:'f'},{t:'Corredor da feira durante visita livre',o:'f'},
+    {t:'Reações e expressões do público',o:'f'},{t:'Logos e identidade visual do Inova Agro',o:'f'},
+    {t:'Foto com palestrante (se possível combinar)',o:'f'},
+  ]
+},
+{
+  num:3, data:'03', mes:'JUN', dia:'Quarta', tema:'Inova Agro + Espaço Mulher',
+  alerta:null,
+  programacao:[
+    {h:'8h30–11h',t:'Eixo 2 AGCZ: Goiás Genética 2026 (genética, reprodução, mercado)',l:'Auditório',tipo:'aud'},
+    {h:'9h–10h15',t:'Mesa redonda: Governança, gestão e pessoas — Lorena S., Angêla L., Cristiane S., Tânia Segurado',l:'Espaço Mulher',tipo:'mulher'},
+    {h:'10h15–11h15',t:'Sucessoras e gestão de fazendas / Genética e legado — Fabíola Lino e Letícia Pereira',l:'Espaço Mulher',tipo:'mulher'},
+    {h:'14h–15h',t:'Sustentabilidade hídrica — Antônio Pasqualetto e Jales Teixeira Chaves F.',l:'Auditório',tipo:'aud'},
+    {h:'15h–18h',t:'Agricultura regenerativa, bioinsumos e biocombustíveis — múltiplos palestrantes',l:'Auditório',tipo:'aud'},
+  ],
+  reels:[
+    {
+      num:1, titulo:'Quem vai tocar a fazenda amanhã — sucessoras do agro', dur:'55–65s',
+      contexto:'Um dos temas mais emocionalmente ricos do evento. Falar de sucessão familiar em fazendas toca em algo universal: legado, escolha, identidade, medo de decepcionar os pais. Atinge tanto quem está no agro quanto o público geral que vai entender a profundidade emocional por trás de uma fazenda de família. Tom humano com profundidade.',
+      takes:[
+        {titulo:'ABERTURA — Espaço Mulher com painel de governança',tempo:'0–4s',instrucao:'Grave com o painel de governança em andamento. Plano geral, câmera lenta. O clima é mais íntimo que uma palestra convencional.',pergunta:null,fala:null,edicao:null,direcao:'Tente captar momentos de diálogo entre as participantes — não só alguém falando.'},
+        {titulo:'CONTEXTO — Texto gancho',tempo:'4–10s',instrucao:'Texto aparece sobre imagem do painel ou de uma mulher anotando no caderno.',pergunta:null,fala:null,edicao:'"Quem vai tocar a fazenda quando os pais não puderem mais?"',direcao:'Esse texto funciona como gancho emocional — não é apresentação da palestra, é uma pergunta que todos no agro familiar carregam.'},
+        {titulo:'ABORDAGEM 1 — Mulher jovem (sucessora)',tempo:'10–28s',instrucao:'Procure uma mulher jovem — filha de produtor, estudante de agronomia ou veterinária. Se ela hesitar: "Pode falar à vontade, sem nome se preferir."',pergunta:'Você é filha de produtor? Sempre soube que ia continuar no agro, ou foi uma descoberta no caminho?',fala:'"Meu pai nunca imaginou que eu ia querer tomar conta da fazenda — achava que eu ia virar médica. Mas quando eu peguei o trator pela primeira vez, entendi que era isso." ou "Tive muita resistência da família. Hoje sou eu que gerencio tudo."',edicao:null,direcao:'DEIXA A EMOÇÃO APARECER. Se a pessoa emocionar, não interrompa. Esse take pode ser o mais poderoso de toda a cobertura.'},
+        {titulo:'ABORDAGEM 2 — Mulher experiente (gestora/palestrante)',tempo:'28–44s',instrucao:'Aborde Fabíola Lino ou Letícia Pereira após a palestra, ou uma gestora da plateia.',pergunta:'O que mudou na gestão da fazenda quando as mulheres assumiram a frente? O resultado foi diferente?',fala:'"Quando a mulher assume a gestão, a fazenda vira empresa. Ela organiza o financeiro, cuida das pessoas, pensa no longo prazo. Não é melhor nem pior — é diferente, e faz muita diferença."',edicao:null,direcao:'Palmilhe o espaço durante os intervalos para encontrar as pessoas certas.'},
+        {titulo:'IMAGENS — Espaço Mulher, networking',tempo:'44–55s',instrucao:'Mulheres em conversa após a palestra, anotando, trocando cartão, abraçando.',pergunta:null,fala:null,edicao:null,direcao:'O networking informal depois da palestra é mais rico visualmente do que a palestra em si.'},
+        {titulo:'ENCERRAMENTO',tempo:'55–63s',instrucao:'Duas mulheres conversando de costas ou o Espaço Mulher se esvaziando.',pergunta:null,fala:null,edicao:'"A próxima geração do agro tem nome de mulher. Agrocapital 2026."',direcao:'Trilha suave — termina com leveza e força ao mesmo tempo.'},
+      ]
+    },
+    {
+      num:2, titulo:'O campo que regenera — bioinsumos, água e o futuro da produção', dur:'45–55s',
+      contexto:'Sustentabilidade hídrica e agricultura regenerativa parecem técnicos mas tocam na sobrevivência do agro a longo prazo. Para o produtor que ainda não adotou essas práticas entender o que está perdendo; para o público geral entender que o agro moderno está produzindo de forma responsável. Tom informativo mas acessível.',
+      takes:[
+        {titulo:'ABERTURA — Painel do auditório',tempo:'0–3s',instrucao:'Imagem do painel de bioinsumos em andamento — palestrantes no palco, telão com imagens de campo.',pergunta:null,fala:null,edicao:null,direcao:''},
+        {titulo:'ABORDAGEM 1 — Produtor/técnico com opinião',tempo:'3–20s',instrucao:'No intervalo do almoço ou antes do painel, aborde alguém no corredor com perfil de produtor ou técnico agrícola.',pergunta:'Você já trabalha com bioinsumos ou agricultura regenerativa? Como foi a mudança?',fala:'"Comecei em 20% da área como teste. Hoje estou expandindo porque o resultado foi melhor do que esperava — e o custo caiu."',edicao:null,direcao:'A resposta "ainda não fiz mas quero entender" representa a maioria do público — também é válida.'},
+        {titulo:'ABORDAGEM 2 — Produtor cético (contraponto)',tempo:'20–36s',instrucao:'Busque alguém que questione se dá pra ser sustentável e lucrativo. Cria tensão narrativa e engajamento.',pergunta:'Dá pra ser sustentável e ainda ter lucro? O que você acha?',fala:'"Acredito que sim, mas o mercado ainda não paga mais por produto sustentável no Brasil. Quando isso mudar, vai decolar."',edicao:null,direcao:'Perguntas com leve provocação geram respostas mais honestas e interessantes.'},
+        {titulo:'IMAGENS — Painel, telão, auditório',tempo:'36–48s',instrucao:'Palestrantes, telão com imagens de campo verde, plateia prestando atenção.',pergunta:null,fala:null,edicao:null,direcao:''},
+        {titulo:'ENCERRAMENTO',tempo:'48–54s',instrucao:'',pergunta:null,fala:null,edicao:'"Produzir mais. Degradar menos. O agro que regenera está aqui."',direcao:''},
+      ]
+    }
+  ],
+  takes:[
+    {t:'Espaço Mulher — mesa de governança em andamento',o:'r'},{t:'Mulher jovem (sucessora) falando (15s)',o:'r'},
+    {t:'Fabíola Lino ou Letícia Pereira palestrando (lateral)',o:'r'},{t:'Painel de bioinsumos/regenerativa no auditório',o:'r'},
+    {t:'Produtor opinando sobre regenerativa (15s)',o:'r'},{t:'Espaço Mulher cheio — plano geral com público',o:'b'},
+    {t:'Técnico com visão cética sobre sustentabilidade (15s)',o:'b'},{t:'Corredor da feira no almoço',o:'b'},
+    {t:'Networking científico às 19h — ambiente',o:'g'},{t:'Interação natural entre mulheres pós-palestra',o:'g'},
+  ],
+  fotos:[
+    {t:'Mesa de governança — Espaço Mulher',o:'f'},{t:'Fabíola Lino e Letícia Pereira no painel',o:'f'},
+    {t:'Mulheres jovens assistindo às palestras',o:'f'},{t:'Networking feminino no intervalo',o:'f'},
+    {t:'Painel de bioinsumos — auditório cheio',o:'f'},{t:'Telão com imagens de campo verde',o:'f'},
+    {t:'Produtor rural no corredor (retrato)',o:'f'},{t:'Mulheres em conversa pós-palestra',o:'f'},
+    {t:'Detalhes de cadernos e anotações',o:'f'},{t:'Expressões de atenção durante palestra',o:'f'},
+    {t:'Banner da programação do dia 3',o:'f'},{t:'Espaço Mulher se esvaziando ao final',o:'f'},
+    {t:'Closes em mãos, detalhes humanos',o:'f'},{t:'Vista geral do evento no meio da semana',o:'f'},
+    {t:'Interação entre expositores e visitantes',o:'f'},
+  ]
+},
+{
+  num:4, data:'04', mes:'JUN', dia:'Quinta', tema:'Inova Agro II + Kaká Barretos',
+  alerta:'ÀS 18H: Kaká Barretos encerra o dia com "Um dedo de prosa". É o momento mais cultural e emocional do evento. Chegue com antecedência e garanta boa posição.',
+  programacao:[
+    {h:'9h–10h30',t:'Hospital de câncer & Vida e saúde — Dra. Ana Miranda, Graziella Salvagani, Janaína Bueno',l:'Espaço Mulher',tipo:'mulher'},
+    {h:'9h–10h',t:'Agro 5.0 — Oswaldo Stival Neto, Carlos Eduardo Bento B., Eliezer Furtado de Carvalho',l:'Auditório',tipo:'aud'},
+    {h:'10h–11h30',t:'O papel das mulheres no agro — Flávia Rabelo, Maria Jordana, Fabiana Mendonça',l:'Auditório',tipo:'aud'},
+    {h:'14h–15h',t:'Integração logística e cadeia — Geiser Gome, Lucas Gouveia, Luiz Morais',l:'Auditório',tipo:'aud'},
+    {h:'15h–17h',t:'Segurança jurídica e sucessão — Alessandra Braga Pacheco, Wander Neto, David Lucas',l:'Auditório',tipo:'aud'},
+    {h:'18h',t:'"Um dedo de prosa" — Kaká Barretos',l:'Auditório',tipo:'palco'},
+  ],
+  reels:[
+    {
+      num:1, titulo:'O papel das mulheres no agro — agora no palco principal', dur:'50–60s',
+      contexto:'Nos dias anteriores, o tema mulher estava no Espaço Mulher. Hoje vai para o Auditório Principal — isso tem simbolismo. Flávia Rabelo, Maria Jordana e Fabiana Mendonça não estão num espaço separado: estão no palco principal do evento. O reel celebra isso sem precisar dizer explicitamente. Pode abordar também um homem saindo da palestra — a perspectiva masculina sobre o tema é um take poderoso.',
+      takes:[
+        {titulo:'ABERTURA — Auditório com palestra em andamento',tempo:'0–4s',instrucao:'Grave de ângulo lateral ou do fundo. O banner/telão com o tema "O papel das mulheres no agro" precisa estar visível.',pergunta:null,fala:null,edicao:null,direcao:'O fato de estar no auditório principal — e não num espaço separado — já é uma mensagem. Deixa a câmera mostrar isso.'},
+        {titulo:'ABORDAGEM 1 — Mulher saindo da palestra',tempo:'4–20s',instrucao:'Na saída, aborde uma mulher. Enquadramento: rosto + auditório ao fundo.',pergunta:'Esse tema "papel das mulheres no agro" estar no palco principal hoje — o que isso significa pra você?',fala:'"Significa que finalmente deixou de ser pauta secundária. A mulher tá no palco principal porque ela é protagonista no campo."',edicao:null,direcao:''},
+        {titulo:'ABORDAGEM 2 — HOMEM saindo da palestra',tempo:'20–36s',instrucao:'Aborde um homem saindo — de preferência produtor rural ou empresário do agro. A perspectiva masculina sobre o tema é incomum e poderosa.',pergunta:'Você acompanhou a palestra sobre o papel das mulheres no agro. Mudou alguma coisa na sua visão?',fala:'"Tenho mulher que trabalha comigo na fazenda. Vim aqui porque quero entender melhor o que ela vive." ou "Honestamente? Não vim pra essa palestra por escolha, acabei ficando — e me surpreendeu muito."',edicao:null,direcao:'Se o homem falar com genuinidade, pode ser o take mais compartilhado de toda a cobertura.'},
+        {titulo:'IMAGENS — Palco, telão, plateia mista',tempo:'36–48s',instrucao:'Palestrantes no palco (lateral), telão com imagem delas, plateia com homens e mulheres juntos.',pergunta:null,fala:null,edicao:null,direcao:'Uma plateia mista nessa palestra específica é visualmente significativa.'},
+        {titulo:'ENCERRAMENTO',tempo:'48–56s',instrucao:'',pergunta:null,fala:null,edicao:'"Quando a mulher sobe ao palco principal, o agro inteiro avança."',direcao:''},
+      ]
+    },
+    {
+      num:2, titulo:'Kaká Barretos encerra o dia — o agro tem alma', dur:'50–60s',
+      contexto:'Kaká Barretos num evento de agronegócio é cultura e identidade. O produtor que ouve sertanejo vai ver Kaká num auditório de congresso científico e vai entender que esse evento enxerga ele como pessoa inteira — não só como empresário. Esse reel precisa captar emoção, clima e mostrar que a Agrocapital é diferente dos eventos padrão do setor. Tom: admiração, calor, pertencimento.',
+      takes:[
+        {titulo:'CHEGADA — Kaká Barretos entrando',tempo:'0–4s',instrucao:'Se possível, capture a chegada de Kaká ao auditório ou o momento em que entra no palco. Câmera estabilizada, plano geral.',pergunta:null,fala:null,edicao:null,direcao:'Chegue com pelo menos 20 minutos de antecedência. A entrada do artista costuma ser o momento mais energético.'},
+        {titulo:'TRECHO — Kaká no palco e clima do auditório',tempo:'10–28s',instrucao:'Grave o auditório durante a apresentação: público, Kaká no palco ou no telão. Closes rápidos em rostos emocionados, sorrindo ou cantando juntos.',pergunta:null,fala:null,edicao:null,direcao:'Closes em rostos de pessoas emocionadas são os takes mais valiosos desse momento.'},
+        {titulo:'ABORDAGEM — Pessoa saindo do evento',tempo:'28–45s',instrucao:'Na saída, aborde alguém que estava dentro. A pergunta é sobre o contraste: evento de negócios + cultura.',pergunta:'Kaká Barretos num evento de agronegócio. O que você acha que esse tipo de programação representa pra uma feira como essa?',fala:'"Isso aqui não é só feira de negócio. É um evento completo — você vem pra aprender, fechar negócio e ir embora inspirado." ou "O agro tem alma. A gente não é só número de safra."',edicao:null,direcao:'Qualquer resposta que misture emoção com negócio é perfeita para esse reel.'},
+        {titulo:'ENCERRAMENTO',tempo:'45–55s',instrucao:'Público saindo, luz natural do fim de tarde.',pergunta:null,fala:null,edicao:'"Negócio. Conhecimento. Alma. Isso é a Agrocapital."',direcao:''},
+      ]
+    }
+  ],
+  takes:[
+    {t:'Banner "O papel das mulheres no agro" + auditório',o:'r'},{t:'Flávia Rabelo / Maria Jordana / Fabiana no palco (lateral)',o:'r'},
+    {t:'Homem saindo da palestra com opinião genuína (15s)',o:'r'},{t:'Kaká Barretos no palco ou chegando',o:'r'},
+    {t:'Auditório cheio durante Kaká Barretos',o:'r'},{t:'Pessoa saindo opinando sobre Kaká e o evento (15s)',o:'r'},
+    {t:'Espaço Mulher — painel de saúde / Dra. Ana Miranda',o:'b'},{t:'Mulher saindo da palestra do palco principal (15s)',o:'b'},
+    {t:'Clima geral do evento no dia 4',o:'g'},{t:'Plateia mista na palestra sobre mulheres',o:'g'},
+  ],
+  fotos:[
+    {t:'Palco principal — Flávia Rabelo, Maria Jordana, Fabiana',o:'f'},{t:'Plateia mista (homens e mulheres juntos)',o:'f'},
+    {t:'Kaká Barretos no palco — plano geral',o:'f'},{t:'Auditório cheio com telão',o:'f'},
+    {t:'Closes em rostos emocionados durante Kaká Barretos',o:'f'},{t:'Espaço Mulher — painel de saúde',o:'f'},
+    {t:'Público em pé ou cantando junto',o:'f'},{t:'Pôr do sol / luz natural de fim de tarde no evento',o:'f'},
+    {t:'Saída do evento com clima festivo',o:'f'},{t:'Interação entre visitantes no corredor',o:'f'},
+    {t:'Detalhes artísticos — luz, sombra, movimento',o:'f'},{t:'Banner Kaká Barretos ou programação do dia',o:'f'},
+    {t:'Networking pós-palestra principal',o:'f'},{t:'Expressões de emoção durante o encerramento',o:'f'},
+    {t:'Vista noturna / iluminação do evento',o:'f'},
+  ]
+},
+{
+  num:5, data:'05', mes:'JUN', dia:'Sexta', tema:'Mulheres do Agro — Encerramento',
+  alerta:null,
+  programacao:[
+    {h:'8h30–9h30',t:'Mesa redonda: Liderança feminina que transforma o agro — Sônia Bonato, Mara Suassuna, Jéssica Nogueira, Evelyn Stival, Emília Costa, Amanda Souza',l:'Auditório',tipo:'aud'},
+    {h:'10h30',t:'Cooperativismo na essência — Nárcia Kelly',l:'Auditório',tipo:'aud'},
+    {h:'14h–15h',t:'Como captar crédito de forma estratégica — Lucas Felipe (LF Open Banking)',l:'Auditório',tipo:'aud'},
+  ],
+  reels:[
+    {
+      num:1, titulo:'Seis líderes. Uma mesa. O agro que elas construíram.', dur:'55–65s',
+      contexto:'O último dia tem um tema dedicado inteiramente às mulheres do agro — no Auditório Principal, desde as 8h30. Seis líderes numa mesa de debate. Esse reel precisa captar o peso disso: não é "as mulheres no agro" como pauta, é liderança real, resultado real, transformação real. Ao mesmo tempo, esse é o penúltimo reel da cobertura — quem acompanhou a semana vai sentir que está chegando ao fim.',
+      takes:[
+        {titulo:'ABERTURA — Mesa redonda no auditório principal',tempo:'0–5s',instrucao:'Chegue antes das 8h30. Seis mulheres no auditório principal. Plano geral da mesa, depois travelling lento da esquerda para a direita passando por cada uma.',pergunta:null,fala:null,edicao:null,direcao:'Seis pessoas na mesa = seis histórias. A câmera precisa fazer isso parecer o que é: histórico.'},
+        {titulo:'CONTEXTO — Texto gancho',tempo:'5–12s',instrucao:'Texto sobre imagem da mesa completa.',pergunta:null,fala:null,edicao:'"Últimas horas da Agrocapital 2026 · Seis líderes. Uma mesa. O agro que elas construíram."',direcao:''},
+        {titulo:'ABORDAGEM 1 — Líder do painel',tempo:'12–28s',instrucao:'Tente combinar com Sônia Bonato, Mara Suassuna ou Evelyn Stival antes ou após a mesa.',pergunta:'O que você construiu no agro que há 20 anos seria improvável pra uma mulher?',fala:'"Fui a primeira mulher a presidir a cooperativa da nossa região. Na época, metade achava que não ia durar 6 meses. No quinto ano, batemos recorde de faturamento."',edicao:null,direcao:'Essa pergunta tende a trazer histórias pesadas e honestas. Deixa a emoção aparecer.'},
+        {titulo:'ABORDAGEM 2 — Mulher jovem na plateia',tempo:'28–44s',instrucao:'Jovem — estudante, filha de produtor, técnica agrícola.',pergunta:'Você se enxerga liderando no agro daqui a 10 anos? O que você viu aqui hoje que te inspira?',fala:'"Sempre tive medo de entrar num setor tão masculino. Mas ver essas mulheres ali... parece que tem espaço pra mim também."',edicao:null,direcao:'A insegurança honesta de uma jovem contrasta bem com a segurança da líder experiente — coloca os dois takes juntos na edição.'},
+        {titulo:'IMAGENS — Mesa, plateia, aplausos',tempo:'44–55s',instrucao:'Auditório cheio, mesa de líderes em conversa, plateia com homens e mulheres, aplausos ao final.',pergunta:null,fala:null,edicao:null,direcao:''},
+        {titulo:'ENCERRAMENTO',tempo:'55–62s',instrucao:'',pergunta:null,fala:null,edicao:'"Elas lideram. Elas transformam. Elas são o agro."',direcao:''},
+      ]
+    },
+    {
+      num:2, titulo:'5 dias. O que ficou.', dur:'60–70s',
+      contexto:'O reel de encerramento de toda a cobertura. Não é só o dia 5 — é o balanço dos 5 dias. Quem acompanhou desde o início vai ter a sensação de "chegou ao fim". Quem vê pela primeira vez vai querer voltar e assistir os anteriores. Tom de fechamento emocional: gratidão, impacto, pertencimento. Use os takes mais humanos da semana — não os mais técnicos.',
+      takes:[
+        {titulo:'ABERTURA — Evento no último dia',tempo:'0–4s',instrucao:'Plano geral do complexo no dia 5. Tente replicar o mesmo ângulo do dia 1 — cria sensação de ciclo completo.',pergunta:null,fala:null,edicao:null,direcao:'Se filmou a entrada no dia 1, volte ao mesmo ponto. O contraste das duas imagens na edição é poderoso.'},
+        {titulo:'ABORDAGEM 1 — Produtor rural',tempo:'4–18s',instrucao:'Produtor que claramente passou a semana no evento ou que está chegando.',pergunta:'5 dias de Agrocapital. O que você leva daqui? Valeu a vinda?',fala:'"Fechei dois contratos que não esperava. Além disso, aprendi sobre bioinsumo que vou testar essa safra." ou "Vim pela primeira vez e já estou pensando em trazer minha equipe toda no ano que vem."',edicao:null,direcao:''},
+        {titulo:'ABORDAGEM 2 — Mulher marcante',tempo:'18–32s',instrucao:'Preferência para alguém que você já abordou em outro dia ou que esteve presente em mais de um evento.',pergunta:'O que foi mais marcante pra você nesses 5 dias?',fala:'"O Espaço Mulher. Nunca imaginei que uma feira de agronegócio ia ter esse espaço. Isso mudou minha relação com o setor."',edicao:null,direcao:''},
+        {titulo:'ABORDAGEM 3 — Jovem do agro',tempo:'32–46s',instrucao:'Jovem — estudante, filho de produtor ou profissional jovem.',pergunta:'Você voltaria ano que vem? O que te surpreendeu nessa edição?',fala:'"Vim sem expectativa e saio com contatos, ideias e vontade de fazer diferente."',edicao:null,direcao:''},
+        {titulo:'COMPILADO — Melhores takes da semana',tempo:'46–60s',instrucao:'5–6 imagens dos melhores momentos: 1 por dia. Abertura, Espaço Mulher, Inova Agro, Kaká Barretos, mesa de líderes. Sem fala — trilha no pico.',pergunta:null,fala:null,edicao:null,direcao:'Escolha os takes mais humanos — rostos, emoções, conexões. Não os mais técnicos.'},
+        {titulo:'ENCERRAMENTO FINAL',tempo:'60–68s',instrucao:'Público saindo, fim de tarde em Goiânia. Trilha baixando aos poucos.',pergunta:null,fala:null,edicao:'"2 reels por dia. 5 dias. Isso foi a Agrocapital 2026. Até o próximo ano."',direcao:'O texto vai aparecendo linha por linha na edição — "2 reels por dia." pausa · "5 dias." pausa · "Isso foi a Agrocapital 2026." pausa · "Até o próximo ano."'},
+      ]
+    }
+  ],
+  takes:[
+    {t:'Mesa de líderes no auditório — plano geral (10s)',o:'r'},{t:'Líder feminina do painel com opinião (15s)',o:'r'},
+    {t:'Mulher jovem falando sobre inspiração (15s)',o:'r'},{t:'Produtor — o que leva da feira (15s)',o:'r'},
+    {t:'Jovem — voltaria? O que surpreendeu? (15s)',o:'r'},{t:'Melhores imagens do dia 5 para compilado final',o:'r'},
+    {t:'Lucas Felipe — crédito estratégico (take ambiente)',o:'b'},{t:'Nárcia Kelly — Cooperativismo (take lateral)',o:'b'},
+    {t:'Movimento de encerramento — público saindo',o:'b'},{t:'Plano geral do evento no mesmo ângulo do dia 1',o:'b'},
+  ],
+  fotos:[
+    {t:'Mesa de liderança feminina — visão frontal histórica',o:'f'},{t:'Seis líderes na mesa — retrato do momento',o:'f'},
+    {t:'Plateia mista aplaudindo',o:'f'},{t:'Jovem mulher inspirada na plateia',o:'f'},
+    {t:'Encerramento do evento — público saindo',o:'f'},{t:'Plano geral no mesmo ângulo do dia 1',o:'f'},
+    {t:'Lucas Felipe na palestra de crédito',o:'f'},{t:'Nárcia Kelly — Cooperativismo',o:'f'},
+    {t:'Últimas horas — clima de nostalgia',o:'f'},{t:'Detalhes de encerramento: desmontagem, saída',o:'f'},
+    {t:'Retratos finais de pessoas marcantes da semana',o:'f'},{t:'Foto com expositores ou parceiros do evento',o:'f'},
+    {t:'Selfie/registro do evento (ambiente, sem rostos)',o:'f'},{t:'Pôr do sol / último frame do evento',o:'f'},
+    {t:'Compilado visual: mosaico dos 5 dias',o:'f'},
+  ]
+}
+];
+
+// ─── STATE ───
+let checkState = {};
+let diaAtivo = null;
+
+function totalItens(dia){
+  let reel=0;
+  dia.reels.forEach(r=>reel+=r.takes.length);
+  return { takes: dia.takes.length, fotos: dia.fotos.length, reel };
+}
+function contarChecked(dia,di){
+  let takes=0,fotos=0,reel=0;
+  dia.takes.forEach((_,i)=>{ if(checkState[`t_${di}_${i}`]) takes++ });
+  dia.fotos.forEach((_,i)=>{ if(checkState[`f_${di}_${i}`]) fotos++ });
+  dia.reels.forEach((r,ri)=>r.takes.forEach((_,ti)=>{ if(checkState[`r_${di}_${ri}_${ti}`]) reel++ }));
+  return {takes,fotos,reel};
+}
+function pctDia(di){
+  const dia=DIAS[di], tot=totalItens(dia), chk=contarChecked(dia,di);
+  const t=tot.takes+tot.fotos+tot.reel;
+  const d=chk.takes+chk.fotos+chk.reel;
+  return t===0?0:Math.round(d/t*100);
+}
+function pctGeral(){
+  let tot=0,d=0;
+  DIAS.forEach((dia,di)=>{
+    const t=totalItens(dia), c=contarChecked(dia,di);
+    tot+=t.takes+t.fotos+t.reel;
+    d+=c.takes+c.fotos+c.reel;
+  });
+  return tot===0?0:Math.round(d/tot*100);
+}
+function updateStats(){
+  let totT=0,totF=0,totR=0,dT=0,dF=0,dR=0,diasOk=0;
+  DIAS.forEach((dia,di)=>{
+    const t=totalItens(dia),c=contarChecked(dia,di);
+    totT+=t.takes; totF+=t.fotos; totR+=t.reel;
+    dT+=c.takes; dF+=c.fotos; dR+=c.reel;
+    if(pctDia(di)===100) diasOk++;
+  });
+  const pg=pctGeral();
+  document.getElementById('pct-geral').textContent=pg+'%';
+  document.getElementById('barra-geral').style.width=pg+'%';
+  document.getElementById('stat-takes').textContent=`${dT}/${totT}`;
+  document.getElementById('stat-fotos').textContent=`${dF}/${totF}`;
+  document.getElementById('stat-roteiro').textContent=`${dR}/${totR}`;
+  document.getElementById('stat-dias').textContent=`${diasOk}/5`;
+  // update calendário
+  DIAS.forEach((_,di)=>{
+    const p=pctDia(di);
+    const el=document.getElementById(`cal-fill-${di}`);
+    const pt=document.getElementById(`cal-pct-${di}`);
+    const card=document.getElementById(`cal-card-${di}`);
+    if(el) el.style.width=p+'%';
+    if(pt) pt.textContent=p+'%';
+    if(card){
+      card.classList.toggle('concluido',p===100);
+    }
+  });
+}
+
+// ─── CONFETTI ───
+function confetti(){
+  const cores=['#e8a020','#4ade80','#f5c050','#ffffff','#2a8a5a'];
+  for(let i=0;i<60;i++){
+    const el=document.createElement('div');
+    el.className='confetti-piece';
+    el.style.cssText=`left:${Math.random()*100}vw;top:${-10+Math.random()*20}px;background:${cores[Math.floor(Math.random()*cores.length)]};animation-delay:${Math.random()*0.8}s;width:${6+Math.random()*8}px;height:${6+Math.random()*8}px;border-radius:${Math.random()>0.5?'50%':'2px'}`;
+    document.body.appendChild(el);
+    setTimeout(()=>el.remove(),3000);
+  }
+}
+
+// ─── MODAL ───
+const msgs_reel=[
+  {emoji:'🎬',t:'REEL CONCLUÍDO!',m:'Mais um roteiro entregue com tudo certo. Você está dominando a cobertura!'},
+  {emoji:'🔥',t:'TAKE PERFEITO!',m:'Todos os takes registrados. O material desse reel vai ficar incrível na edição.'},
+  {emoji:'⭐',t:'MISSÃO DO REEL!',m:'Roteiro 100% executado. A Agrocapital tem sorte de ter você na cobertura.'},
+];
+const msgs_dia=[
+  {emoji:'🏆',t:'DIA CONCLUÍDO!',m:'Todos os takes, fotos e roteiros do dia estão marcados. Você arrasou! Hora de editar e entregar. Vai ser lindo.'},
+  {emoji:'🥇',t:'MISSÃO DO DIA!',m:'100% do dia executado! Dois reels saindo dessa cobertura perfeita. Vai dormir com dever cumprido.'},
+  {emoji:'🌟',t:'DIA PERFEITO!',m:'Todos os itens do dia concluídos. Que profissional! O cliente vai adorar o material que chegou hoje.'},
+];
+const msg_geral={emoji:'🎊',t:'COBERTURA COMPLETA!',m:'5 dias. 10 reels. Centenas de takes e fotos. Você cobriu a Agrocapital 2026 do começo ao fim com excelência. Isso é coisa de profissional de verdade. Parabéns!'};
+
+let modalFila=[];
+let modalAberto=false;
+
+function mostrarModal(emoji,titulo,msg){
+  if(modalAberto){modalFila.push({emoji,titulo,msg});return;}
+  modalAberto=true;
+  document.getElementById('modal-emoji').textContent=emoji;
+  document.getElementById('modal-titulo').textContent=titulo;
+  document.getElementById('modal-msg').textContent=msg;
+  document.getElementById('modal').classList.add('ativo');
+  confetti();
+}
+function fecharModal(){
+  document.getElementById('modal').classList.remove('ativo');
+  modalAberto=false;
+  if(modalFila.length){
+    const next=modalFila.shift();
+    setTimeout(()=>mostrarModal(next.emoji,next.titulo,next.msg),300);
+  }
+}
+
+// ─── RENDER ───
+function buildCalendario(){
+  const cal=document.getElementById('calendario');
+  DIAS.forEach((d,di)=>{
+    const card=document.createElement('div');
+    card.className='cal-card'+(diaAtivo===di?' ativo':'');
+    card.id=`cal-card-${di}`;
+    card.innerHTML=`
+      <div class="cal-check">✓</div>
+      <div class="cal-mes">${d.mes}</div>
+      <div class="cal-num">${d.data}</div>
+      <div class="cal-dia">${d.dia}</div>
+      <div class="cal-tema">${d.tema}</div>
+      <div class="cal-minibarra"><div class="cal-minifill" id="cal-fill-${di}" style="width:0%"></div></div>
+      <div class="cal-pct-txt" id="cal-pct-${di}">0%</div>
+    `;
+    card.addEventListener('click',()=>abrirDia(di));
+    cal.appendChild(card);
+  });
+}
+
+function abrirDia(di){
+  diaAtivo = diaAtivo===di ? null : di;
+  document.querySelectorAll('.cal-card').forEach((c,i)=>c.classList.toggle('ativo',i===diaAtivo));
+  document.querySelectorAll('.dia-conteudo').forEach((c,i)=>c.classList.toggle('ativo',i===diaAtivo));
+  if(diaAtivo!==null){
+    document.getElementById(`dia-${diaAtivo}`).scrollIntoView({behavior:'smooth',block:'start'});
+  }
+}
+
+function badgeLoc(tipo){
+  if(tipo==='mulher') return '<span class="badge-mulher">Espaço Mulher</span>';
+  if(tipo==='aud') return '<span class="badge-aud">Auditório</span>';
+  if(tipo==='palco') return '<span class="badge-palco">Palco Principal</span>';
+  return '';
+}
+
+function buildDias(){
+  const wrap=document.getElementById('conteudo-dias');
+  DIAS.forEach((dia,di)=>{
+    const el=document.createElement('div');
+    el.className='dia-conteudo';
+    el.id=`dia-${di}`;
+
+    let html=`
+      <div class="dia-header">
+        <div class="dia-header-num">DIA ${dia.num}  ·  ${dia.data} DE ${dia.mes}  ·  ${dia.dia.toUpperCase()}</div>
+        <div class="dia-header-titulo">${dia.tema}</div>
+        <div class="dia-header-tema">AgroCapital 2026 · Goiânia, GO · 2 reels por dia</div>
+        <div class="dia-progresso-local">
+          <div class="dia-prog-barra"><div class="dia-prog-fill" id="dpf-${di}" style="width:0%"></div></div>
+          <div class="dia-prog-pct" id="dpp-${di}">0%</div>
+        </div>
+      </div>
+    `;
+
+    if(dia.alerta) html+=`<div class="alerta"><strong>⭐ Atenção:</strong> ${dia.alerta}</div>`;
+
+    // Programação
+    html+=`<div class="secao-titulo">Programação oficial</div>
+    <table class="prog-tabela">`;
+    dia.programacao.forEach(p=>{
+      html+=`<tr><td class="prog-hora">${p.h}</td><td class="prog-tema">${p.t}${badgeLoc(p.tipo)}</td><td class="prog-local">${p.l}</td></tr>`;
+    });
+    html+=`</table>`;
+
+    // Reels
+    html+=`<div class="secao-titulo">Roteiros dos reels</div>`;
+    dia.reels.forEach((reel,ri)=>{
+      const reelId=`reel-${di}-${ri}`;
+      html+=`<div class="reel-card">
+        <div class="reel-header" onclick="toggleReel('${reelId}')">
+          <div class="reel-num-badge">${reel.num}</div>
+          <div class="reel-info">
+            <div class="reel-titulo">${reel.titulo}</div>
+            <div class="reel-dur">⏱ ${reel.dur}</div>
+          </div>
+          <div class="reel-toggle" id="${reelId}-chevron">▼</div>
+        </div>
+        <div class="reel-body" id="${reelId}">
+          <div class="contexto-box">${reel.contexto}</div>`;
+
+      reel.takes.forEach((take,ti)=>{
+        const k=`r_${di}_${ri}_${ti}`;
+        const tkId=`take-${di}-${ri}-${ti}`;
+        html+=`<div class="take-bloco" id="tb-${k}">
+          <div class="take-header" onclick="toggleTakeDetalhes('${tkId}', event)" data-key="${k}" data-di="${di}" data-ri="${ri}" data-ti="${ti}">
+            <div class="take-cb" id="tcb-${k}"></div>
+            <div class="take-num">T${ti+1}</div>
+            <div class="take-titulo-txt" id="ttxt-${k}">${take.titulo}</div>
+            <div class="take-expand" id="tex-${tkId}">▼</div>
+          </div>
+          <div class="take-detalhe" id="${tkId}">`;
+
+        if(take.tempo) html+=`<div class="take-campo"><div class="take-label">Tempo</div><div class="take-valor">${take.tempo}</div></div>`;
+        if(take.instrucao) html+=`<div class="take-campo"><div class="take-label">Instrução de captação</div><div class="take-valor">${take.instrucao}</div></div>`;
+        if(take.pergunta) html+=`<div class="take-campo"><div class="take-label">Pergunta guia</div><div class="take-valor destaque">${take.pergunta}</div></div>`;
+        if(take.fala) html+=`<div class="take-campo"><div class="take-label">Exemplo de fala</div><div class="take-valor">${take.fala}</div></div>`;
+        if(take.edicao) html+=`<div class="take-campo"><div class="take-label">Texto para edição</div><div class="take-valor destaque">${take.edicao}</div></div>`;
+        if(take.direcao) html+=`<div class="take-campo"><div class="take-label">Direção</div><div class="take-valor">${take.direcao}</div></div>`;
+
+        html+=`</div></div>`;
+      });
+      html+=`</div></div>`;
+    });
+
+    // Checklist takes
+    html+=`<div class="secao-titulo">Checklist de takes de vídeo</div>
+    <div class="checklist-grid">`;
+    dia.takes.forEach((item,i)=>{
+      const k=`t_${di}_${i}`;
+      const bc=item.o==='r'?'chk-r':item.o==='b'?'chk-b':'chk-g';
+      const bl=item.o==='r'?'obrig':item.o==='b'?'bom ter':'extra';
+      html+=`<div class="chk-item" id="chki-${k}" onclick="toggleCheck('${k}','${di}','takes')">
+        <div class="chk-box" id="chkb-${k}"></div>
+        <div class="chk-txt" id="chkt-${k}">${item.t}</div>
+        <span class="chk-badge ${bc}">${bl}</span>
+      </div>`;
+    });
+    html+=`</div>`;
+
+    // Checklist fotos
+    html+=`<div class="secao-titulo">Checklist de fotos (mínimo 10–20/dia)</div>
+    <div class="checklist-grid">`;
+    dia.fotos.forEach((item,i)=>{
+      const k=`f_${di}_${i}`;
+      html+=`<div class="chk-item" id="chki-${k}" onclick="toggleCheck('${k}','${di}','fotos')">
+        <div class="chk-box" id="chkb-${k}"></div>
+        <div class="chk-txt" id="chkt-${k}">${item.t}</div>
+        <span class="chk-badge chk-f">📷 foto</span>
+      </div>`;
+    });
+    html+=`</div>`;
+
+    el.innerHTML=html;
+    wrap.appendChild(el);
+  });
+}
+
+// ─── TOGGLE HANDLERS ───
+function toggleReel(id){
+  const body=document.getElementById(id);
+  const chev=document.getElementById(id+'-chevron');
+  const isOpen=body.classList.toggle('aberto');
+  chev.classList.toggle('aberto',isOpen);
+}
+
+function toggleTakeDetalhes(tkId, e){
+  // Se clicou no checkbox, só marca
+  const target=e.target;
+  if(target.classList.contains('take-cb')||target.closest('.take-cb')){return;}
+  const det=document.getElementById(tkId);
+  const chev=document.getElementById('tex-'+tkId);
+  const isOpen=det.classList.toggle('aberto');
+  chev.classList.toggle('aberto',isOpen);
+}
+
+document.addEventListener('click',function(e){
+  const header=e.target.closest('.take-header');
+  if(!header) return;
+  const cb=header.querySelector('.take-cb');
+  if(e.target===cb||cb.contains(e.target)){
+    const k=cb.id.replace('tcb-','');
+    const di=parseInt(header.dataset.di);
+    const ri=parseInt(header.dataset.ri);
+    const ti=parseInt(header.dataset.ti);
+    toggleRoteiroTake(k,di,ri,ti);
+  }
+});
+
+function toggleRoteiroTake(k,di,ri,ti){
+  checkState[k]=!checkState[k];
+  const cb=document.getElementById('tcb-'+k);
+  const tx=document.getElementById('ttxt-'+k);
+  const bloco=document.getElementById('tb-'+k);
+  if(cb) cb.classList.toggle('ok',checkState[k]);
+  if(cb) cb.textContent=checkState[k]?'✓':'';
+  if(tx) tx.classList.toggle('ok',checkState[k]);
+  if(bloco) bloco.classList.toggle('concluido',checkState[k]);
+
+  updateDiaProgresso(di);
+  updateStats();
+
+  // Verificar se reel está completo
+  if(checkState[k]){
+    const reel=DIAS[di].reels[ri];
+    const allReel=reel.takes.every((_,t2)=>checkState[`r_${di}_${ri}_${t2}`]);
+    if(allReel){
+      const m=msgs_reel[Math.floor(Math.random()*msgs_reel.length)];
+      mostrarModal(m.emoji,m.t,m.m);
+    }
+    verificarDia(di);
+  }
+}
+
+function toggleCheck(k,di,tipo){
+  checkState[k]=!checkState[k];
+  const b=document.getElementById('chkb-'+k);
+  const t=document.getElementById('chkt-'+k);
+  const item=document.getElementById('chki-'+k);
+  if(b){b.classList.toggle('ok',checkState[k]);b.textContent=checkState[k]?'✓':'';}
+  if(t) t.classList.toggle('ok',checkState[k]);
+  if(item) item.classList.toggle('ok',checkState[k]);
+
+  updateDiaProgresso(di);
+  updateStats();
+  if(checkState[k]) verificarDia(di);
+}
+
+function updateDiaProgresso(di){
+  const p=pctDia(di);
+  const fill=document.getElementById(`dpf-${di}`);
+  const pct=document.getElementById(`dpp-${di}`);
+  if(fill) fill.style.width=p+'%';
+  if(pct) pct.textContent=p+'%';
+}
+
+function verificarDia(di){
+  const p=pctDia(di);
+  if(p===100){
+    if(DIAS.every((_,i)=>pctDia(i)===100)){
+      setTimeout(()=>mostrarModal(msg_geral.emoji,msg_geral.t,msg_geral.m),400);
+    } else {
+      const m=msgs_dia[Math.floor(Math.random()*msgs_dia.length)];
+      setTimeout(()=>mostrarModal(m.emoji,m.t,m.m),400);
+    }
+  }
+}
+
+// ─── INIT ───
+buildCalendario();
+buildDias();
+updateStats();
+</script>
+</body>
+</html>
