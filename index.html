@@ -614,8 +614,40 @@ const DIAS = [
 ];
 
 // ─── STATE ───
+const STORAGE_KEY = 'agrocapital2026_progresso';
 let checkState = {};
 let diaAtivo = null;
+
+function salvarEstado(){
+  try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(checkState)); }catch(e){}
+}
+function carregarEstado(){
+  try{
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if(saved) checkState = JSON.parse(saved);
+  }catch(e){ checkState={}; }
+}
+function restaurarUI(){
+  Object.keys(checkState).forEach(k=>{
+    if(!checkState[k]) return;
+    if(k.startsWith('r_')){
+      const cb=document.getElementById('tcb-'+k);
+      const tx=document.getElementById('ttxt-'+k);
+      const bloco=document.getElementById('tb-'+k);
+      if(cb){cb.classList.add('ok');cb.textContent='✓';}
+      if(tx) tx.classList.add('ok');
+      if(bloco) bloco.classList.add('concluido');
+    } else {
+      const b=document.getElementById('chkb-'+k);
+      const t=document.getElementById('chkt-'+k);
+      const item=document.getElementById('chki-'+k);
+      if(b){b.classList.add('ok');b.textContent='✓';}
+      if(t) t.classList.add('ok');
+      if(item) item.classList.add('ok');
+    }
+  });
+  DIAS.forEach((_,di)=>updateDiaProgresso(di));
+}
 
 function totalItens(dia){
   let reel=0;
@@ -891,6 +923,7 @@ document.addEventListener('click',function(e){
 
 function toggleRoteiroTake(k,di,ri,ti){
   checkState[k]=!checkState[k];
+  salvarEstado();
   const cb=document.getElementById('tcb-'+k);
   const tx=document.getElementById('ttxt-'+k);
   const bloco=document.getElementById('tb-'+k);
@@ -902,7 +935,6 @@ function toggleRoteiroTake(k,di,ri,ti){
   updateDiaProgresso(di);
   updateStats();
 
-  // Verificar se reel está completo
   if(checkState[k]){
     const reel=DIAS[di].reels[ri];
     const allReel=reel.takes.every((_,t2)=>checkState[`r_${di}_${ri}_${t2}`]);
@@ -916,6 +948,7 @@ function toggleRoteiroTake(k,di,ri,ti){
 
 function toggleCheck(k,di,tipo){
   checkState[k]=!checkState[k];
+  salvarEstado();
   const b=document.getElementById('chkb-'+k);
   const t=document.getElementById('chkt-'+k);
   const item=document.getElementById('chki-'+k);
@@ -949,8 +982,10 @@ function verificarDia(di){
 }
 
 // ─── INIT ───
+carregarEstado();
 buildCalendario();
 buildDias();
+restaurarUI();
 updateStats();
 </script>
 </body>
